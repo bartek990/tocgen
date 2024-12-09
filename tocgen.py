@@ -3,6 +3,9 @@ OUTPUT_PATH = "./doc/toc_03_media.md"                      # Plik wyjściowy
 TOC_LINK = "↑[Table of Contents](#table-of-contents)↑"  # Link do spisu treści
 TOC_TITLE = "## Table of Contents"                      # Nagłówek spisu treści
 
+def clean_toc_links(lines: list[str]) -> list[str]:
+    return [line if TOC_LINK not in line else '' for line in lines]
+
 def main():
     # Open file
     with open(SOURCE_PATH, "r") as f:
@@ -12,11 +15,13 @@ def main():
     new_lines = []
     chapters = []
 
+    lines = clean_toc_links(lines)
+
     for line in lines:
         # Remove TOC_LINK if present
-        if TOC_LINK in line or TOC_TITLE in line:
-            line = ''
-            continue
+        # if TOC_LINK in line or TOC_TITLE in line:
+        #     line = ''
+        #     continue
         # Adding TOC before every chapter
         if line.startswith('# ') or line.startswith('## '):
             # Append line to chapters list
