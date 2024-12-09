@@ -87,8 +87,13 @@ def main():
             source_path = sys.argv[2]
             output_path = sys.argv[3]
 
+            print(f'Plik źródłowy: {source_path}\nPlik wyjściowy: {output_path}')
+
             parse_toc(source_path, output_path)
-            print(f'Pomyślnie zapisano plik {output_path}')
+            print(f'Pomyślnie zapisano')
+
+        case _:
+            print(f'Brak komendy "{sys.argv[1]}".\nAby uzyskać pomoc wpisz "tocgen.py --help"')
 
 
 
