@@ -5,7 +5,7 @@ TOC_TITLE = "## Table of Contents"                      # Nagłówek spisu treś
 
 def clean_toc_links(lines: list[str]) -> list[str]:
     """
-    Removes toc links from lines
+    Returns a list of strings without toc links
     :param lines:
     :return:
     """
@@ -13,11 +13,19 @@ def clean_toc_links(lines: list[str]) -> list[str]:
 
 def insert_toc_links(lines: list[str]) -> list[str]:
     """
-    Inserts toc links at the end of chapters
+    Returns a list of strings with toc links at the end of chapters
     :param lines:
     :return:
     """
     return [TOC_LINK + '\n' + line if line.startswith('# ') or line.startswith('## ') else line for line in lines]
+
+def make_list_of_chapters(lines: list[str]) -> list[str]:
+    """
+    Returns a list of chapters
+    :param lines:
+    :return:
+    """
+    return [line for line in lines if line.startswith('# ') or line.startswith('## ')]
 
 def main():
     # Open file
@@ -25,9 +33,10 @@ def main():
         lines = f.readlines()
 
     # Remove existing TOC_LINKs, add new ones and make a list of chapters
-    new_lines = []
-    chapters = []
+    # new_lines = []
+    # chapters = []
 
+    chapters = make_list_of_chapters(lines)
     lines = clean_toc_links(lines)
     lines = insert_toc_links(lines)
 
