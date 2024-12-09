@@ -63,51 +63,11 @@ def main():
     with open(SOURCE_PATH, "r") as f:
         lines = f.readlines()
 
-    # Remove existing TOC_LINKs, add new ones and make a list of chapters
-    # new_lines = []
-    # chapters = []
-
     chapters = make_list_of_chapters(lines)
     lines = clean_toc_links(lines)
     lines = insert_toc_links(lines)
 
     table_of_contents = make_table_of_contents(chapters)
-
-    # for line in lines:
-    #     # Remove TOC_LINK if present
-    #     # if TOC_LINK in line or TOC_TITLE in line:
-    #     #     line = ''
-    #     #     continue
-    #     # Adding TOC before every chapter
-    #     if line.startswith('# ') or line.startswith('## '):
-    #         # Append line to chapters list
-    #         chapters.append(line)
-    #         line = TOC_LINK + "\n" + line
-    #
-    #     new_lines.append(line)
-
-    # table_of_contents = []
-    # table_of_contents.append(TOC_TITLE + '\n\n')
-    #
-    # # Make table of contents
-    # for chapter in chapters:
-    #     chapter = chapter.replace('\n', '')
-    #     chapter = chapter.replace('# ', '')
-    #     chapter = chapter.replace('#', '\t')
-    #
-    #     link = chapter.lower()
-    #     link = link.replace('.', '')
-    #     link = link.replace('\t', '')
-    #     link = link.replace(' ', '-')
-    #     link = '#' + link
-    #
-    #     chapter = chapter.replace('. ', '. [')
-    #     chapter = chapter + f"]({link})\n"
-    #     if not chapter.startswith('\t'):
-    #         chapter = chapter + '\n'
-    #     table_of_contents.append(chapter)
-    #
-    # table_of_contents.append('\n')
 
     new_file = table_of_contents + lines
 
