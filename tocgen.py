@@ -29,6 +29,34 @@ class Chapter:
                 f'[{self.title}](#{self.number}-{self.title.lower().replace(' ', '-')})\n'.replace(':', ''))
 
 
+class TableOfContents:
+    def __init__(self):
+        self._title: str = TOC_TITLE + '\n\n'
+        self._content: list[Chapter] = []
+
+    def __repr__(self) -> str:
+        return f'<TableOfContent: len={len(self)}>'
+
+    def __len__(self) -> int:
+        return len(self._content)
+
+    def add_chapter(self, chapter: Chapter) -> None:
+        """
+        Adds a chapter to table of content.
+        :param chapter: *Chapter*
+        """
+        self._content.append(chapter)
+
+    def get_toc(self) -> list[str]:
+        """
+        Returns table of content as list of strings or empty list
+        :return: *list[str]* | *[]*
+        """
+        if len(self) > 0:
+            return [self._title] + [con.get_link() for con in self._content]
+        return []
+
+
 def clean_toc_links(lines: list[str]) -> list[str]:
     """
     Returns a list of strings without toc links
@@ -58,21 +86,19 @@ def make_list_of_chapters(lines: list[str]) -> list[str]:
     return [line for line in lines if line.startswith('# ') or line.startswith('## ')]
 
 
-def make_table_of_contents(chapters: list[str]):
+def make_table_of_contents(chapters: list[str]) -> TableOfContents:
     """
     Returns a table of content from chapters list
-    :param chapters:
-    :return:
+    :param chapters: *list[str]*
+    :return: *TableOfContent*
     """
-    table_of_contents = [TOC_TITLE + '\n\n',]
+    toc = TableOfContents()
 
     # Make table of contents
     for chapter in chapters:
-        chapter = Chapter(chapter)
-        table_of_contents.append(chapter.get_link())
+        toc.add_chapter(Chapter(chapter))
 
-    table_of_contents.append('\n')
-    return table_of_contents
+    return toc
 
 
 def parse_toc(source_path: str, output_path: str) -> None:
@@ -90,9 +116,9 @@ def parse_toc(source_path: str, output_path: str) -> None:
     lines = clean_toc_links(lines)
     lines = insert_toc_links(lines)
 
-    table_of_contents = make_table_of_contents(chapters)
+    toc = make_table_of_contents(chapters)
 
-    new_file = table_of_contents + lines
+    new_file = toc.get_toc() + lines
 
     # Write a new file
     with open(output_path, 'w') as f:
@@ -117,6 +143,12 @@ def main():
 
             print(chapter)
             print(chapter.get_link())
+            print(chapter.title + '\n\n')
+
+            toc = TableOfContents()
+            print(len(toc))
+            toc.add_chapter(chapter)
+            print(toc.get_toc())
 
         case _:
             print(f'Brak komendy "{sys.argv[1]}".\nAby uzyskać pomoc wpisz "tocgen.py --help"')
