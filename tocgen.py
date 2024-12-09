@@ -88,14 +88,14 @@ def main():
             output_path = sys.argv[3]
 
             print(f'Plik źródłowy: {source_path}\nPlik wyjściowy: {output_path}')
-
             parse_toc(source_path, output_path)
             print(f'Pomyślnie zapisano')
 
+        case '--help':
+            print('Aby dodać spis treści do pliku MarkDown użyj:\ntocgen.py parse plik_źródłowy plik_wynikowy')
+
         case _:
             print(f'Brak komendy "{sys.argv[1]}".\nAby uzyskać pomoc wpisz "tocgen.py --help"')
-
-
 
 if __name__ == '__main__':
     main()
