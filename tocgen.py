@@ -4,7 +4,20 @@ TOC_LINK = "↑[Table of Contents](#table-of-contents)↑"  # Link do spisu tre�
 TOC_TITLE = "## Table of Contents"                      # Nagłówek spisu treści
 
 def clean_toc_links(lines: list[str]) -> list[str]:
+    """
+    Removes toc links from lines
+    :param lines:
+    :return:
+    """
     return [line if TOC_LINK not in line else '' for line in lines]
+
+def insert_toc_links(lines: list[str]) -> list[str]:
+    """
+    Inserts toc links at the end of chapters
+    :param lines:
+    :return:
+    """
+    return [TOC_LINK + '\n' + line if line.startswith('# ') or line.startswith('## ') else line for line in lines]
 
 def main():
     # Open file
@@ -16,19 +29,20 @@ def main():
     chapters = []
 
     lines = clean_toc_links(lines)
+    lines = insert_toc_links(lines)
 
-    for line in lines:
-        # Remove TOC_LINK if present
-        # if TOC_LINK in line or TOC_TITLE in line:
-        #     line = ''
-        #     continue
-        # Adding TOC before every chapter
-        if line.startswith('# ') or line.startswith('## '):
-            # Append line to chapters list
-            chapters.append(line)
-            line = TOC_LINK + "\n" + line
-
-        new_lines.append(line)
+    # for line in lines:
+    #     # Remove TOC_LINK if present
+    #     # if TOC_LINK in line or TOC_TITLE in line:
+    #     #     line = ''
+    #     #     continue
+    #     # Adding TOC before every chapter
+    #     if line.startswith('# ') or line.startswith('## '):
+    #         # Append line to chapters list
+    #         chapters.append(line)
+    #         line = TOC_LINK + "\n" + line
+    #
+    #     new_lines.append(line)
 
     table_of_contents = []
     table_of_contents.append(TOC_TITLE + '\n\n')
@@ -53,7 +67,7 @@ def main():
 
     table_of_contents.append('\n')
 
-    new_file = table_of_contents + new_lines
+    new_file = table_of_contents + lines
 
     # Write a new file
     with open(OUTPUT_PATH, 'w') as f:
