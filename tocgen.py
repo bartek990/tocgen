@@ -1,5 +1,5 @@
-SOURCE_PATH = "./doc/03_media.md"                                # Plik źródłowy
-OUTPUT_PATH = "./doc/toc_03_media.md"                      # Plik wyjściowy
+import sys
+
 TOC_LINK = "↑[Table of Contents](#table-of-contents)↑"  # Link do spisu treści
 TOC_TITLE = "## Table of Contents"                      # Nagłówek spisu treści
 
@@ -58,12 +58,18 @@ def make_table_of_contents(chapters: list[str]):
     table_of_contents.append('\n')
     return table_of_contents
 
-def main():
+def parse_toc(source_path: str, output_path: str) -> None:
+    """
+    Loads file from source_path, adds table of contents and saves new file on output_path
+    :param source_path:
+    :param output_path:
+    """
     # Open file
-    with open(SOURCE_PATH, "r") as f:
+    with open(source_path, "r") as f:
         lines = f.readlines()
 
     chapters = make_list_of_chapters(lines)
+
     lines = clean_toc_links(lines)
     lines = insert_toc_links(lines)
 
@@ -72,8 +78,19 @@ def main():
     new_file = table_of_contents + lines
 
     # Write a new file
-    with open(OUTPUT_PATH, 'w') as f:
+    with open(output_path, 'w') as f:
         f.writelines(new_file)
+
+def main():
+    match sys.argv[1]:
+        case 'parse':
+            source_path = sys.argv[2]
+            output_path = sys.argv[3]
+
+            parse_toc(source_path, output_path)
+            print(f'Pomyślnie zapisano plik {output_path}')
+
+
 
 if __name__ == '__main__':
     main()
