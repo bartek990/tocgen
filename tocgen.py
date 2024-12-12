@@ -3,6 +3,33 @@ from dataclasses import dataclass, field
 
 TOC_LINK = "↑[Table of Contents](#table-of-contents)↑"  # Link do spisu treści
 TOC_TITLE = "## Table of Contents"                      # Nagłówek spisu treści
+eg_lines = [
+                '# 05. Enums Unleashed: Pattern Matching and Options\n',
+                '\n', '↑[Table of Contents](#table-of-contents)↑\n',
+                '## 046. Defining Enums\n',
+                '\n',
+                '```rust\n',
+                '#[derive(Debug)]\n',
+                'enum Media {\n',
+                '    Book {title: String, author: String},\n',
+                '    Movie {title: String, director: String},\n',
+                '    Audiobook {title: String}\n',
+                '}\n',
+                '\n',
+                'fn print_media(media: Media) {\n',
+                '    println!("{:#?}", media);\n',
+                '}\n',
+                '\n',
+                'fn main() {\n',
+                '    let audiobook = Media::Audiobook {\n',
+                '        title: String::from("An Audiobook"),\n',
+                '    };\n',
+                '\n',
+                '    print_media(audiobook);\n',
+                '}\n',
+                '```\n',
+                '\n',
+                '↑[Table of Contents](#table-of-contents)↑\n',]
 
 @dataclass(order=True, frozen=True)
 class Chapter:
@@ -68,6 +95,22 @@ class TableOfContents:
             self.add_chapter(Chapter(chapter))
 
 
+class Document:
+    def __init__(self, lines: list[str]):
+        self._lines: list[str] = lines
+        self.toc_link = TOC_LINK
+
+    def __len__(self) -> int:
+        return len(self._lines)
+
+    def __repr__(self) -> str:
+        return f'<Document: len={len(self)}>'
+
+    def print_document(self) -> None:
+        for line in self._lines:
+            print(line, end='')
+
+
 def clean_toc_links(lines: list[str]) -> list[str]:
     """
     Returns a list of strings without toc links
@@ -75,6 +118,10 @@ def clean_toc_links(lines: list[str]) -> list[str]:
     :return:
     """
     return [line if TOC_LINK not in line else '' for line in lines]
+
+
+def remove_lines(lines: list[str], line_to_remove: str):
+    return [line for line in lines if line_to_remove not in line]
 
 
 def insert_toc_links(lines: list[str]) -> list[str]:
@@ -125,16 +172,10 @@ def main():
             print('Aby dodać spis treści do pliku MarkDown użyj:\ntocgen.py parse plik_źródłowy plik_wynikowy')
 
         case '--test':
-            chapter = Chapter('## 046. Defining Enums\n')
-
-            print(chapter)
-            print(chapter.get_link())
-            print(chapter.title + '\n\n')
-
-            toc = TableOfContents()
-            print(len(toc))
-            toc.add_chapter(chapter)
-            print(toc.get_toc())
+            document = Document(remove_lines(eg_lines, TOC_LINK))
+            document.print_document()
+            print(len(eg_lines))
+            print(document)
 
         case _:
             print(f'Brak komendy "{sys.argv[1]}".\nAby uzyskać pomoc wpisz "tocgen.py --help"')
