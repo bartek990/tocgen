@@ -26,13 +26,16 @@ class Chapter:
         """
         # todo: find better solution for replacing special chars with '-'
         return (f'\n{(self.tag.count('#') - 1) * "\t"}{self.number}. '
-                f'[{self.title}](#{self.number}-{self.title.lower().replace(' ', '-')})\n'.replace(':', ''))
+                f'[{self.title}](#{self.number}-{self.title.lower().replace(' ', '-')})\n'
+                .replace(':', ''))
 
 
 class TableOfContents:
-    def __init__(self):
+    def __init__(self, lines: list[str]):
         self._title: str = TOC_TITLE + '\n\n'
         self._content: list[Chapter] = []
+        self._list_of_chapters: list[str] = [line for line in lines if line.startswith('# ') or line.startswith('## ')]
+        self._make_table_of_contents()
 
     def __repr__(self) -> str:
         return f'<TableOfContent: len={len(self)}>'
@@ -56,6 +59,14 @@ class TableOfContents:
             return [self._title] + [con.get_link() for con in self._content]
         return []
 
+    def _make_table_of_contents(self) -> None:
+        """
+        Generates table of contents based on *self._list_of_chapters* and saves it in *self._content.
+        """
+        # Make table of contents
+        for chapter in self._list_of_chapters:
+            self.add_chapter(Chapter(chapter))
+
 
 def clean_toc_links(lines: list[str]) -> list[str]:
     """
@@ -77,30 +88,6 @@ def insert_toc_links(lines: list[str]) -> list[str]:
     return lines
 
 
-def make_list_of_chapters(lines: list[str]) -> list[str]:
-    """
-    Returns a list of chapters
-    :param lines:
-    :return:
-    """
-    return [line for line in lines if line.startswith('# ') or line.startswith('## ')]
-
-
-def make_table_of_contents(chapters: list[str]) -> TableOfContents:
-    """
-    Returns a table of content from chapters list
-    :param chapters: *list[str]*
-    :return: *TableOfContent*
-    """
-    toc = TableOfContents()
-
-    # Make table of contents
-    for chapter in chapters:
-        toc.add_chapter(Chapter(chapter))
-
-    return toc
-
-
 def parse_toc(source_path: str, output_path: str) -> None:
     """
     Loads file from source_path, adds table of contents and saves new file on output_path
@@ -111,12 +98,11 @@ def parse_toc(source_path: str, output_path: str) -> None:
     with open(source_path, "r") as f:
         lines = f.readlines()
 
-    chapters = make_list_of_chapters(lines)
+    toc = TableOfContents(lines)
 
+    # todo: toclink chapter line join error
     lines = clean_toc_links(lines)
     lines = insert_toc_links(lines)
-
-    toc = make_table_of_contents(chapters)
 
     new_file = toc.get_toc() + lines
 
