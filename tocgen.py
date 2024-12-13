@@ -31,20 +31,81 @@ eg_lines = [
                 '\n',
                 '↑[Table of Contents](#table-of-contents)↑\n',]
 
-@dataclass(order=True, frozen=True)
 class Chapter:
-    line: str = field(repr=False)
-    tag: str = field(init=False)
-    number: str = field(init=False)
-    title: str = field(init=False)
+    def __init__(self):
+        self._header: str | None = None
+        self._body: str | None = None
+        self._footer: str | None = None
+        self._tag: str | None = None
+        self._number: str | None = None
+        self._title: str | None = None
 
-    def __post_init__(self):
-        rest, title = self.line.split('. ', 1)
-        tag, number = rest.split(' ')
+    def __repr__(self):
+        return (f'<Chapter: header="{self.header}", '
+                f'body_len={None if self.body is None else len(self.body)}, '
+                f'footer={False if self._footer is None else True}>')
 
-        object.__setattr__(self, 'tag', tag)
-        object.__setattr__(self, 'number', number)
-        object.__setattr__(self, 'title', title.replace('\n', ''))
+    @property
+    def header(self) -> str | None:
+        return self._header
+
+    @header.setter
+    def header(self, text: str) -> None:
+        if not self._validate_header(text):
+            raise AttributeError
+
+        text = text.replace('\n', '')
+        text, self._title = text.split('. ', 1)
+        self._tag, self._number = text.split(' ')
+        self._header = f'{self.tag} {self.number}. {self.title}'
+
+    @header.deleter
+    def header(self) -> None:
+        self._header = None
+        self._body = None
+        self._tag = None
+        self._number = None
+        self._title = None
+
+    @property
+    def body(self) -> str | None:
+        return self._body
+
+    @property
+    def footer(self) -> str | None:
+        return self._footer
+
+    @property
+    def tag(self) -> str | None:
+        return self._tag
+
+    @property
+    def number(self) -> str | None:
+        return self._number
+
+    @property
+    def title(self) -> str | None:
+        return self._title
+
+    @classmethod
+    def from_header(cls, header: str):
+        chapter = cls.__new__(cls)
+        chapter.__init__()
+        chapter.header = header
+        return chapter
+
+    @classmethod
+    def _validate_header(cls, header) -> bool:
+        if not isinstance(header, str):
+            return False
+
+        if '#' not in header:
+            return False
+
+        if '. ' not in header:
+            return False
+
+        return True
 
     def get_link(self) -> str:
         """
@@ -92,7 +153,7 @@ class TableOfContents:
         """
         # Make table of contents
         for chapter in self._list_of_chapters:
-            self.add_chapter(Chapter(chapter))
+            self.add_chapter(Chapter.from_header(chapter))
 
 
 class Document:
@@ -126,6 +187,7 @@ class Document:
         return doc
 
 
+# todo: remove
 def clean_toc_links(lines: list[str]) -> list[str]:
     """
     Returns a list of strings without toc links
@@ -185,9 +247,16 @@ def main():
         case '--test':
             document = Document.load_from_file('./doc/03_media.md')
             document.remove_lines(TOC_LINK)
-            document.print_document()
-            # print(len(eg_lines))
-            print(document)
+            # document.print_document()
+            # # print(len(eg_lines))
+            # print(document)
+
+            header = '## 046. Defining Enums\n'
+            # header = 12
+            chapter = Chapter()
+            chapter.header = header
+            # del chapter.header
+            print(chapter.get_link())
 
         case _:
             print(f'Brak komendy "{sys.argv[1]}".\nAby uzyskać pomoc wpisz "tocgen.py --help"')
